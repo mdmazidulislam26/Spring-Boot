@@ -9,7 +9,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 
 @Service
 public class UserService {
@@ -18,13 +17,16 @@ public class UserService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private final AuthenticationManager authenticationManager;;
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtService jwtService;
 
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, AuthenticationManager authenticationManager) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     public User register(User user) {
@@ -43,7 +45,7 @@ public class UserService {
                     )
             );
             if (authentication.isAuthenticated()) {
-                str = "Success -> 336699";
+                str = jwtService.generateToken(user);
             }
         } catch (AuthenticationException e) {
             str = e.getMessage()+" Login failed";
